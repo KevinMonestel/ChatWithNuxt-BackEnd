@@ -1,3 +1,4 @@
+using ChatDemo.BackEnd.WebApi.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,6 +33,10 @@ namespace ChatDemo.BackEnd.WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ChatDemo.BackEnd.WebApi", Version = "v1" });
             });
+
+            services.AddSignalR();
+
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,9 +55,18 @@ namespace ChatDemo.BackEnd.WebApi
 
             app.UseAuthorization();
 
+            app.UseCors(builder =>
+                builder
+                    .WithOrigins("http://localhost:51882")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+            );
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/api/ChatHub");
             });
         }
     }
